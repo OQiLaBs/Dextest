@@ -3,874 +3,765 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polygon DEX | Swap & Liquidity</title>
-    <!-- Bootstrap CSS -->
+    <title>SimpleSwap DEX</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #8247e5;
-            --primary-light: #9a66e8;
-            --secondary-color: #2172e5;
-            --background-color: #f7f8fa;
-            --card-color: #ffffff;
-            --text-color: #000000;
-            --text-secondary: #888d9b;
-            --border-color: #edeef2;
-            --error-color: #fd4040;
-            --warning-color: #f3a738;
-            --success-color: #27ae60;
-        }
-        
         body {
-            background-color: var(--background-color);
+            background-color: #f7f8fa;
             font-family: 'Inter', sans-serif;
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
-        
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-color) !important;
-            font-size: 1.5rem;
-        }
-        
         .card {
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edeef2;
         }
-        
-        .nav-tabs {
-            border-bottom: none;
-        }
-        
         .nav-tabs .nav-link {
-            color: var(--text-secondary);
+            color: #6c7284;
             font-weight: 500;
-            border: none;
-            padding: 10px 20px;
-            position: relative;
         }
-        
         .nav-tabs .nav-link.active {
-            color: var(--primary-color);
+            color: #3f80ff;
             font-weight: 600;
+            border-bottom: 2px solid #3f80ff;
             background: transparent;
         }
-        
-        .nav-tabs .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 20px;
-            right: 20px;
-            height: 3px;
-            background-color: var(--primary-color);
-            border-radius: 3px 3px 0 0;
-        }
-        
         .token-input {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-            transition: border-color 0.2s;
-        }
-        
-        .token-input:hover {
-            border-color: var(--primary-light);
-        }
-        
-        .token-input-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        
-        .token-input-body {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .token-amount {
-            border: none;
-            background: transparent;
-            font-size: 1.5rem;
-            width: 70%;
-            color: var(--text-color);
-            font-weight: 500;
-        }
-        
-        .token-amount:focus {
-            outline: none;
-        }
-        
-        .token-select {
-            background-color: var(--border-color);
-            border-radius: 12px;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .token-select:hover {
-            background-color: #e6e8ec;
-        }
-        
-        .token-symbol {
-            font-weight: 600;
-            margin-left: 8px;
-        }
-        
-        .swap-button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
+            background-color: #f7f8fa;
+            border: 1px solid #edeef2;
             border-radius: 12px;
             padding: 16px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 10px;
-            transition: background-color 0.2s;
         }
-        
-        .swap-button:hover {
-            background-color: var(--primary-light);
+        .token-select {
+            cursor: pointer;
+            background-color: #edeef2;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-weight: 500;
         }
-        
-        .swap-button:disabled {
-            background-color: #c7b3f0;
-            cursor: not-allowed;
-        }
-        
-        .connect-wallet {
-            background-color: var(--primary-color);
-            color: white;
+        .btn-primary {
+            background-color: #3f80ff;
             border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #3772e5;
+        }
+        .btn-outline-primary {
+            border-color: #3f80ff;
+            color: #3f80ff;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+        }
+        .btn-outline-primary:hover {
+            background-color: #3f80ff;
+            color: white;
+        }
+        .connect-btn {
+            background-color: #3f80ff;
+            color: white;
             border-radius: 12px;
             padding: 8px 16px;
             font-weight: 600;
-            transition: background-color 0.2s;
         }
-        
-        .connect-wallet:hover {
-            background-color: var(--primary-light);
-        }
-        
-        .network-indicator {
-            background-color: var(--border-color);
-            border-radius: 12px;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-right: 10px;
-        }
-        
-        .settings-button {
-            color: var(--text-secondary);
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-        
-        .modal-content {
-            border-radius: 20px;
-            border: none;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .token-list-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: background-color 0.2s;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .token-list-item:last-child {
-            border-bottom: none;
-        }
-        
-        .token-list-item:hover {
-            background-color: var(--border-color);
-        }
-        
-        .footer {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            padding: 20px 0;
-            margin-top: auto;
-        }
-        
-        .alert-message {
-            border-radius: 12px;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .alert-error {
-            background-color: rgba(253, 64, 64, 0.1);
-            color: var(--error-color);
-            border: 1px solid rgba(253, 64, 64, 0.2);
-        }
-        
-        .alert-warning {
-            background-color: rgba(243, 167, 56, 0.1);
-            color: var(--warning-color);
-            border: 1px solid rgba(243, 167, 56, 0.2);
-        }
-        
-        .alert-success {
-            background-color: rgba(39, 174, 96, 0.1);
-            color: var(--success-color);
-            border: 1px solid rgba(39, 174, 96, 0.2);
-        }
-        
-        .alert-icon {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .slippage-settings {
-            position: absolute;
-            right: 20px;
-            top: 60px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            width: 250px;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .slippage-settings.show {
-            display: block;
-        }
-        
-        .slippage-option {
-            display: inline-block;
-            padding: 5px 10px;
-            margin-right: 5px;
-            border-radius: 8px;
-            background-color: var(--border-color);
-            cursor: pointer;
-        }
-        
-        .slippage-option.active {
-            background-color: var(--primary-color);
+        .disconnect-btn {
+            background-color: #ff3f3f;
             color: white;
-        }
-        
-        .slippage-custom input {
-            width: 60px;
-            padding: 5px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-        
-        .transaction-details {
-            background-color: rgba(130, 71, 229, 0.05);
             border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
+            padding: 8px 16px;
+            font-weight: 600;
         }
-        
-        .transaction-detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .transaction-detail-row:last-child {
-            margin-bottom: 0;
-        }
-        
-        .transaction-detail-label {
-            color: var(--text-secondary);
-        }
-        
-        .transaction-detail-value {
-            font-weight: 500;
-        }
-        
-        .price-impact-low {
-            color: var(--success-color);
-        }
-        
-        .price-impact-medium {
-            color: var(--warning-color);
-        }
-        
-        .price-impact-high {
-            color: var(--error-color);
-        }
-        
-        .max-button {
-            background-color: rgba(130, 71, 229, 0.1);
-            color: var(--primary-color);
-            border: none;
-            border-radius: 6px;
-            padding: 2px 8px;
-            font-size: 0.8rem;
+        .token-modal-item {
+            padding: 12px;
+            border-radius: 12px;
             cursor: pointer;
-            margin-left: 5px;
         }
-        
-        .max-button:hover {
-            background-color: rgba(130, 71, 229, 0.2);
+        .token-modal-item:hover {
+            background-color: #f7f8fa;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-exchange-alt me-2"></i>PolygonDEX
-            </a>
-            <div class="d-flex align-items-center">
-                <div class="network-indicator" id="networkIndicator">
-                    <i class="fas fa-circle-notch fa-spin me-2"></i> Connecting...
-                </div>
-                <button class="connect-wallet" id="connectWallet">
-                    <span id="walletButtonText">Connect Wallet</span>
-                </button>
-            </div>
+    <div class="container py-4" style="max-width: 500px;">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="m-0">SimpleSwap</h5>
+            <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
+            <button id="disconnectWalletBtn" class="disconnect-btn d-none">Disconnect</button>
         </div>
-    </nav>
 
-    <!-- Main Content -->
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <!-- Error/Warning Messages Container -->
-                <div id="alertsContainer"></div>
-                
-                <div class="card">
-                    <div class="card-body p-4">
-                        <!-- Tabs -->
-                        <ul class="nav nav-tabs mb-4" id="dexTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="swap-tab" data-bs-toggle="tab" data-bs-target="#swap" type="button" role="tab">Swap</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="liquidity-tab" data-bs-toggle="tab" data-bs-target="#liquidity" type="button" role="tab">Liquidity</button>
-                            </li>
-                        </ul>
-                        
-                        <!-- Tab Content -->
-                        <div class="tab-content" id="dexTabsContent">
-                            <!-- Swap Tab -->
-                            <div class="tab-pane fade show active" id="swap" role="tabpanel">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="mb-0">Swap</h5>
-                                    <div class="position-relative">
-                                        <button class="settings-button" id="settingsButton">
-                                            <i class="fas fa-cog"></i>
-                                        </button>
-                                        <div class="slippage-settings" id="slippageSettings">
-                                            <h6>Slippage tolerance</h6>
-                                            <div class="mb-3">
-                                                <span class="slippage-option active" data-slippage="0.5">0.5%</span>
-                                                <span class="slippage-option" data-slippage="1">1%</span>
-                                                <span class="slippage-option" data-slippage="3">3%</span>
-                                            </div>
-                                            <div class="slippage-custom">
-                                                <span>Custom: </span>
-                                                <input type="number" min="0.1" max="50" step="0.1" id="customSlippage" value="0.5"> %
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="token-input">
-                                    <div class="token-input-header">
-                                        <span>You pay</span>
-                                        <span>Balance: <span id="fromTokenBalance">0.0</span> <button class="max-button" id="maxButton">MAX</button></span>
-                                    </div>
-                                    <div class="token-input-body">
-                                        <input type="number" class="token-amount" id="fromAmount" placeholder="0.0" min="0" step="any">
-                                        <div class="token-select" id="fromTokenSelect">
-                                            <span>Select Token</span>
-                                            <i class="fas fa-chevron-down ms-2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="text-center my-2">
-                                    <button class="btn btn-sm btn-outline-secondary" id="switchTokens">
-                                        <i class="fas fa-arrow-down"></i>
-                                    </button>
-                                </div>
-                                
-                                <div class="token-input">
-                                    <div class="token-input-header">
-                                        <span>You receive</span>
-                                        <span>Balance: <span id="toTokenBalance">0.0</span></span>
-                                    </div>
-                                    <div class="token-input-body">
-                                        <input type="number" class="token-amount" id="toAmount" placeholder="0.0" readonly>
-                                        <div class="token-select" id="toTokenSelect">
-                                            <span>Select Token</span>
-                                            <i class="fas fa-chevron-down ms-2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="transaction-details" id="swapDetails" style="display: none;">
-                                    <div class="transaction-detail-row">
-                                        <span class="transaction-detail-label">Exchange Rate</span>
-                                        <span class="transaction-detail-value" id="exchangeRate">0.0</span>
-                                    </div>
-                                    <div class="transaction-detail-row">
-                                        <span class="transaction-detail-label">Minimum received</span>
-                                        <span class="transaction-detail-value" id="minReceived">0.0</span>
-                                    </div>
-                                    <div class="transaction-detail-row">
-                                        <span class="transaction-detail-label">Price Impact</span>
-                                        <span class="transaction-detail-value" id="priceImpact">0.0%</span>
-                                    </div>
-                                    <div class="transaction-detail-row">
-                                        <span class="transaction-detail-label">Liquidity Provider Fee</span>
-                                        <span class="transaction-detail-value" id="liquidityFee">0.0</span>
-                                    </div>
-                                    <div class="transaction-detail-row">
-                                        <span class="transaction-detail-label">Route</span>
-                                        <span class="transaction-detail-value" id="swapRoute">-</span>
-                                    </div>
-                                </div>
-                                
-                                <button class="swap-button mt-3" id="swapButton" disabled>
-                                    <span id="swapButtonText">Connect Wallet</span>
-                                </button>
-                            </div>
-                            
-                            <!-- Liquidity Tab -->
-                            <div class="tab-pane fade" id="liquidity" role="tabpanel">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="mb-0">Liquidity</h5>
-                                    <button class="settings-button">
-                                        <i class="fas fa-cog"></i>
-                                    </button>
-                                </div>
-                                
-                                <div class="text-center py-4" id="noLiquidityMessage">
-                                    <i class="fas fa-water me-2"></i> Your liquidity positions will appear here.
-                                </div>
-                                
-                                <div id="liquidityPositions" style="display: none;">
-                                    <!-- Liquidity positions will be populated here -->
-                                </div>
-                                
-                                <button class="swap-button mt-3" id="addLiquidityButton">
-                                    <span id="addLiquidityButtonText">Add Liquidity</span>
-                                </button>
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="dexTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="swap-tab" data-bs-toggle="tab" data-bs-target="#swap" type="button" role="tab">Swap</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="liquidity-tab" data-bs-toggle="tab" data-bs-target="#liquidity" type="button" role="tab">Liquidity</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Swap Tab -->
+            <div class="tab-pane fade show active" id="swap" role="tabpanel">
+                <div class="card p-3 mb-3">
+                    <div class="token-input mb-2">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>From</span>
+                            <span>Balance: <span id="fromTokenBalance">0</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <input type="number" id="fromAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;">
+                            <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="from">
+                                <span id="fromTokenSymbol">Select Token</span>
+                                <i class="fas fa-chevron-down ms-2"></i>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="text-center my-2">
+                        <button id="switchTokensBtn" class="btn btn-light rounded-circle" style="width: 36px; height: 36px;">
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="token-input">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>To</span>
+                            <span>Balance: <span id="toTokenBalance">0</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <input type="number" id="toAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;" readonly>
+                            <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="to">
+                                <span id="toTokenSymbol">Select Token</span>
+                                <i class="fas fa-chevron-down ms-2"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="swapBtn" class="btn btn-primary w-100" disabled>Swap</button>
+                
+                <div class="card p-3 mt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Exchange Rate</span>
+                        <span id="exchangeRate">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Price Impact</span>
+                        <span id="priceImpact">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liquidity Tab -->
+            <div class="tab-pane fade" id="liquidity" role="tabpanel">
+                <div class="card p-3 mb-3">
+                    <div class="token-input mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Token A</span>
+                            <span>Balance: <span id="tokenABalance">0</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <input type="number" id="tokenAAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;">
+                            <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="tokenA">
+                                <span id="tokenASymbol">Select Token</span>
+                                <i class="fas fa-chevron-down ms-2"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center my-2">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    
+                    <div class="token-input mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Token B</span>
+                            <span>Balance: <span id="tokenBBalance">0</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <input type="number" id="tokenBAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;">
+                            <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="tokenB">
+                                <span id="tokenBSymbol">Select Token</span>
+                                <i class="fas fa-chevron-down ms-2"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="addLiquidityBtn" class="btn btn-primary w-100" disabled>Add Liquidity</button>
+                
+                <div class="card p-3 mt-3">
+                    <h6 class="mb-3">Your Liquidity Positions</h6>
+                    <div id="liquidityPositions">
+                        <p class="text-muted text-center">No liquidity positions found</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Token Selection Modal -->
+    <!-- Token Modal -->
     <div class="modal fade" id="tokenModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Select a token</h5>
+                    <h5 class="modal-title">Select Token</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="input-group mb-3">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" placeholder="Search name or paste address" id="tokenSearch">
+                        <input type="text" id="tokenSearch" class="form-control" placeholder="Search token name or paste address">
                     </div>
-                    
-                    <div class="list-group" id="tokenList">
-                        <!-- Token list will be populated here -->
+                    <div id="tokenList">
+                        <!-- Tokens will be populated here -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Transaction Confirmation Modal -->
-    <div class="modal fade" id="transactionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="transactionModalTitle">Confirm Swap</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="transactionModalBody">
-                    <!-- Transaction details will be populated here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmTransactionButton">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer text-center">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <p><i class="fas fa-code-branch me-2"></i> v1.0.0</p>
-                </div>
-                <div class="col-md-4">
-                    <p>© 2023 PolygonDEX</p>
-                </div>
-                <div class="col-md-4">
-                    <a href="#" class="text-decoration-none me-3"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-decoration-none me-3"><i class="fab fa-github"></i></a>
-                    <a href="#" class="text-decoration-none"><i class="fab fa-discord"></i></a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Web3 and App JS -->
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
-     <script>
-        // [Previous global variables and initialization remains the same]
-
-        // ======================
-        // COMPLETED FUNCTIONALITY
-        // ======================
-
-        // Set max amount from token balance
-        async function setMaxAmount() {
-            if (!fromToken || !account) return;
-            
-            try {
-                let balance;
-                if (fromToken.address === '0x557Bb8f27FEe8186B5594abED96495255fE634e8') {
-                    // Native MATIC balance
-                    balance = await web3.eth.getBalance(account);
-                } else {
-                    // ERC20 token balance
-                    const contract = new web3.eth.Contract(ERC20_ABI, fromToken.address);
-                    balance = await contract.methods.balanceOf(account).call();
-                }
-                
-                const formattedBalance = web3.utils.fromWei(balance, fromToken.decimals < 18 ? 'mwei' : 'ether');
-                document.getElementById('fromAmount').value = parseFloat(formattedBalance).toFixed(6);
-                updateSwapInfo();
-            } catch (error) {
-                showError('Failed to fetch balance: ' + error.message);
-            }
-        }
-
-        // Update token balances for both tokens
-        async function updateTokenBalances() {
-            if (!account || !isPolygonNetwork) return;
-            
-            try {
-                // Update from token balance
-                if (fromToken) {
-                    let fromBalance;
-                    if (fromToken.address === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
-                        fromBalance = await web3.eth.getBalance(account);
-                    } else {
-                        const contract = new web3.eth.Contract(ERC20_ABI, fromToken.address);
-                        fromBalance = await contract.methods.balanceOf(account).call();
-                    }
-                    const formattedFromBalance = web3.utils.fromWei(fromBalance, fromToken.decimals < 18 ? 'mwei' : 'ether');
-                    document.getElementById('fromTokenBalance').textContent = parseFloat(formattedFromBalance).toFixed(4);
-                }
-
-                // Update to token balance
-                if (toToken) {
-                    let toBalance;
-                    if (toToken.address === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
-                        toBalance = await web3.eth.getBalance(account);
-                    } else {
-                        const contract = new web3.eth.Contract(ERC20_ABI, toToken.address);
-                        toBalance = await contract.methods.balanceOf(account).call();
-                    }
-                    const formattedToBalance = web3.utils.fromWei(toBalance, toToken.decimals < 18 ? 'mwei' : 'ether');
-                    document.getElementById('toTokenBalance').textContent = parseFloat(formattedToBalance).toFixed(4);
-                }
-            } catch (error) {
-                console.error('Error updating balances:', error);
-                showError('Failed to update token balances');
-            }
-        }
-
-        // Show transaction confirmation modal
-        async function confirmSwap() {
-            if (!fromToken || !toToken || !account || transactionInProgress) return;
-            
-            const fromAmount = document.getElementById('fromAmount').value;
-            if (!fromAmount || parseFloat(fromAmount) <= 0) {
-                showError('Please enter a valid amount');
-                return;
-            }
-
-            try {
-                // Calculate price impact (simplified for demo)
-                const fromAmountWei = web3.utils.toWei(fromAmount, fromToken.decimals < 18 ? 'mwei' : 'ether');
-                const toAmountWei = calculateToAmount(fromAmountWei, fromToken, toToken);
-                const priceImpact = calculatePriceImpact(fromAmountWei, toAmountWei);
-                
-                // Prepare transaction details
-                const modalBody = `
-                    <div class="text-center mb-4">
-                        <h4>Review Swap</h4>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="token-input">
-                            <div class="token-input-body">
-                                <span class="fs-4">${fromAmount}</span>
-                                <span class="token-symbol">${fromToken.symbol}</span>
-                            </div>
-                        </div>
-                        <i class="fas fa-arrow-right mx-3"></i>
-                        <div class="token-input">
-                            <div class="token-input-body">
-                                <span class="fs-4">${web3.utils.fromWei(toAmountWei, toToken.decimals < 18 ? 'mwei' : 'ether')}</span>
-                                <span class="token-symbol">${toToken.symbol}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-detail-row">
-                            <span class="transaction-detail-label">Exchange Rate</span>
-                            <span class="transaction-detail-value">
-                                1 ${fromToken.symbol} = ${(web3.utils.fromWei(toAmountWei, toToken.decimals < 18 ? 'mwei' : 'ether') / fromAmount} ${toToken.symbol}
-                            </span>
-                        </div>
-                        <div class="transaction-detail-row">
-                            <span class="transaction-detail-label">Minimum Received</span>
-                            <span class="transaction-detail-value">
-                                ${web3.utils.fromWei(toAmountWei * (100 - currentSlippage) / 100, toToken.decimals < 18 ? 'mwei' : 'ether')} ${toToken.symbol}
-                            </span>
-                        </div>
-                        <div class="transaction-detail-row">
-                            <span class="transaction-detail-label">Price Impact</span>
-                            <span class="transaction-detail-value price-impact-${getPriceImpactLevel(priceImpact)}">
-                                ${priceImpact.toFixed(2)}%
-                            </span>
-                        </div>
-                        <div class="transaction-detail-row">
-                            <span class="transaction-detail-label">Network Fee</span>
-                            <span class="transaction-detail-value">
-                                ~0.005 MATIC
-                            </span>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('transactionModalTitle').textContent = 'Confirm Swap';
-                document.getElementById('transactionModalBody').innerHTML = modalBody;
-                
-                const modal = new bootstrap.Modal(document.getElementById('transactionModal'));
-                modal.show();
-            } catch (error) {
-                showError('Error preparing swap: ' + error.message);
-            }
-        }
-
-        // Execute the swap transaction
-        async function executeSwap() {
-            if (transactionInProgress) return;
-            transactionInProgress = true;
-            
-            const confirmButton = document.getElementById('confirmTransactionButton');
-            confirmButton.disabled = true;
-            confirmButton.innerHTML = '<span class="loading-spinner"></span> Processing...';
-
-            try {
-                const fromAmount = document.getElementById('fromAmount').value;
-                const fromAmountWei = web3.utils.toWei(fromAmount, fromToken.decimals < 18 ? 'mwei' : 'ether');
-                
-                // Simulate swap transaction (in a real DEX, you would call your smart contract here)
-                const receipt = await simulateSwapTransaction(fromAmountWei);
-                
-                // Show success message
-                showError('Swap completed successfully!', false, 'success');
-                
-                // Update balances
-                updateTokenBalances();
-                
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('transactionModal'));
-                modal.hide();
-                
-            } catch (error) {
-                console.error('Swap failed:', error);
-                showError('Swap failed: ' + (error.message || 'Transaction rejected'));
-            } finally {
-                transactionInProgress = false;
-                confirmButton.disabled = false;
-                confirmButton.textContent = 'Confirm';
-            }
-        }
-
-        // Simulate swap transaction (replace with actual contract call)
-        async function simulateSwapTransaction(amountWei) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    // Simulate 3 second delay for transaction
-                    if (Math.random() > 0.1) { // 90% success rate for demo
-                        resolve({
-                            transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
-                            status: true
-                        });
-                    } else {
-                        reject(new Error('Transaction reverted by EVM'));
-                    }
-                }, 3000);
-            });
-        }
-
-        // Add liquidity function
-        async function addLiquidity() {
-            if (!account || !isPolygonNetwork) {
-                showError('Please connect to Polygon network');
-                return;
-            }
-            
-            try {
-                showError('Liquidity functionality coming soon!', false, 'warning');
-            } catch (error) {
-                showError('Failed to add liquidity: ' + error.message);
-            }
-        }
-
-        // ======================
-        // HELPER FUNCTIONS
-        // ======================
-
-        // Calculate expected output amount (simplified for demo)
-        function calculateToAmount(fromAmountWei, fromToken, toToken) {
-            // Simplified constant product formula (x * y = k)
-            const fromReserve = web3.utils.toWei('1000', fromToken.decimals < 18 ? 'mwei' : 'ether');
-            const toReserve = web3.utils.toWei('1000', toToken.decimals < 18 ? 'mwei' : 'ether');
-            
-            const fromAmountWithFee = fromAmountWei * 997 / 1000; // 0.3% fee
-            const toAmount = (fromAmountWithFee * toReserve) / (fromReserve + fromAmountWithFee);
-            
-            return Math.floor(toAmount);
-        }
-
-        // Calculate price impact (simplified for demo)
-        function calculatePriceImpact(fromAmountWei, toAmountWei) {
-            // Simplified calculation - in a real DEX you'd use reserves
-            const nominalRate = 1; // 1:1 assumed mid price
-            const actualRate = toAmountWei / fromAmountWei;
-            return ((nominalRate - actualRate) / nominalRate) * 100;
-        }
-
-        // Get price impact level (low, medium, high)
-        function getPriceImpactLevel(impact) {
-            if (impact < 1) return 'low';
-            if (impact < 5) return 'medium';
-            return 'high';
-        }
-
-        // Toggle slippage settings visibility
-        function toggleSlippageSettings() {
-            const settings = document.getElementById('slippageSettings');
-            settings.classList.toggle('show');
-        }
-
-        // Show error/warning/success message
-        function showError(message, persistent = false, type = 'error') {
-            const alertsContainer = document.getElementById('alertsContainer');
-            
-            const alert = document.createElement('div');
-            alert.className = `alert-message alert-${type}`;
-            alert.innerHTML = `
-                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-check-circle'} alert-icon"></i>
-                ${message}
-                ${!persistent ? '<button type="button" class="btn-close" style="float: right;" onclick="this.parentElement.remove()"></button>' : ''}
-            `;
-            
-            alertsContainer.prepend(alert);
-            
-            if (!persistent) {
-                setTimeout(() => {
-                    alert.remove();
-                }, 5000);
-            }
-        }
-
-        // Clear all errors
-        function clearError() {
-            document.getElementById('alertsContainer').innerHTML = '';
-        }
-
-        // ERC20 ABI (simplified)
-        const ERC20_ABI = [
+    <script>
+        // Contract ABI and Address
+        const contractABI = [
             {
-                "constant": true,
-                "inputs": [{"name": "_owner", "type": "address"}],
-                "name": "balanceOf",
-                "outputs": [{"name": "balance", "type": "uint256"}],
+                "inputs": [
+                    {"internalType": "address", "name": "tokenA", "type": "address"},
+                    {"internalType": "address", "name": "tokenB", "type": "address"},
+                    {"internalType": "uint256", "name": "amountA", "type": "uint256"},
+                    {"internalType": "uint256", "name": "amountB", "type": "uint256"}
+                ],
+                "name": "addLiquidity",
+                "outputs": [],
+                "stateMutability": "nonpayable",
                 "type": "function"
             },
             {
-                "constant": false,
                 "inputs": [
-                    {"name": "_spender", "type": "address"},
-                    {"name": "_value", "type": "uint256"}
+                    {"internalType": "address", "name": "fromToken", "type": "address"},
+                    {"internalType": "address", "name": "toToken", "type": "address"},
+                    {"internalType": "uint256", "name": "amountIn", "type": "uint256"}
                 ],
-                "name": "approve",
-                "outputs": [{"name": "success", "type": "bool"}],
+                "name": "swap",
+                "outputs": [{"internalType": "uint256", "name": "amountOut", "type": "uint256"}],
+                "stateMutability": "nonpayable",
                 "type": "function"
             },
             {
-                "constant": false,
                 "inputs": [
-                    {"name": "_to", "type": "address"},
-                    {"name": "_value", "type": "uint256"}
+                    {"internalType": "address", "name": "", "type": "address"},
+                    {"internalType": "address", "name": "", "type": "address"}
                 ],
-                "name": "transfer",
-                "outputs": [{"name": "success", "type": "bool"}],
+                "name": "reserves",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "uint256", "name": "amountIn", "type": "uint256"},
+                    {"internalType": "uint256", "name": "reserveIn", "type": "uint256"},
+                    {"internalType": "uint256", "name": "reserveOut", "type": "uint256"}
+                ],
+                "name": "getAmountOut",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "pure",
                 "type": "function"
             }
         ];
+        
+        // Replace with your deployed contract address
+        const contractAddress = "0x557Bb8f27FEe8186B5594abED96495255fE634e8";
+        
+        // Common ERC20 tokens (for demo purposes)
+        const commonTokens = [
+            { address: "0xToken1Address", symbol: "TOKEN1", name: "Token 1" },
+            { address: "0xToken2Address", symbol: "TOKEN2", name: "Token 2" },
+            { address: "0xToken3Address", symbol: "TOKEN3", name: "Token 3" }
+        ];
+        
+        // Global variables
+        let web3;
+        let contract;
+        let accounts = [];
+        let selectedTokenType = "";
+        let fromToken = null;
+        let toToken = null;
+        let tokenA = null;
+        let tokenB = null;
+        
+        // Initialize the app
+        async function init() {
+            // Check if MetaMask is installed
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+                
+                // Event listeners
+                document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
+                document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
+                document.getElementById('fromAmount').addEventListener('input', updateSwapOutput);
+                document.getElementById('tokenAAmount').addEventListener('input', updateTokenBAmount);
+                document.getElementById('tokenBAmount').addEventListener('input', updateTokenAAmount);
+                document.getElementById('swapBtn').addEventListener('click', executeSwap);
+                document.getElementById('addLiquidityBtn').addEventListener('click', addLiquidity);
+                document.getElementById('switchTokensBtn').addEventListener('click', switchTokens);
+                
+                // Token modal events
+                document.querySelectorAll('.token-select').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        selectedTokenType = this.getAttribute('data-token');
+                        populateTokenList();
+                    });
+                });
+                
+                // Token search
+                document.getElementById('tokenSearch').addEventListener('input', populateTokenList);
+                
+                // Check if already connected
+                const connectedAccounts = await web3.eth.getAccounts();
+                if (connectedAccounts.length > 0) {
+                    accounts = connectedAccounts;
+                    updateUI();
+                }
+            } else {
+                alert('Please install MetaMask to use this DEX!');
+            }
+        }
+        
+        // Connect to MetaMask
+        async function connectWallet() {
+            try {
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                updateUI();
+            } catch (error) {
+                console.error("User denied account access", error);
+            }
+        }
+        
+        // Disconnect wallet
+        function disconnectWallet() {
+            accounts = [];
+            updateUI();
+        }
+        
+        // Update UI based on connection state
+        function updateUI() {
+            if (accounts.length > 0) {
+                document.getElementById('connectWalletBtn').classList.add('d-none');
+                document.getElementById('disconnectWalletBtn').classList.remove('d-none');
+                
+                // Update balances
+                updateBalances();
+                
+                // Load liquidity positions
+                loadLiquidityPositions();
+            } else {
+                document.getElementById('connectWalletBtn').classList.remove('d-none');
+                document.getElementById('disconnectWalletBtn').classList.add('d-none');
+                
+                // Reset balances
+                document.getElementById('fromTokenBalance').textContent = '0';
+                document.getElementById('toTokenBalance').textContent = '0';
+                document.getElementById('tokenABalance').textContent = '0';
+                document.getElementById('tokenBBalance').textContent = '0';
+                
+                // Disable buttons
+                document.getElementById('swapBtn').disabled = true;
+                document.getElementById('addLiquidityBtn').disabled = true;
+            }
+        }
+        
+        // Update token balances
+        async function updateBalances() {
+            if (accounts.length === 0) return;
+            
+            const address = accounts[0];
+            
+            // Update fromToken balance
+            if (fromToken) {
+                const balance = await getTokenBalance(fromToken.address, address);
+                document.getElementById('fromTokenBalance').textContent = balance;
+            }
+            
+            // Update toToken balance
+            if (toToken) {
+                const balance = await getTokenBalance(toToken.address, address);
+                document.getElementById('toTokenBalance').textContent = balance;
+            }
+            
+            // Update tokenA balance
+            if (tokenA) {
+                const balance = await getTokenBalance(tokenA.address, address);
+                document.getElementById('tokenABalance').textContent = balance;
+            }
+            
+            // Update tokenB balance
+            if (tokenB) {
+                const balance = await getTokenBalance(tokenB.address, address);
+                document.getElementById('tokenBBalance').textContent = balance;
+            }
+        }
+        
+        // Get token balance
+        async function getTokenBalance(tokenAddress, userAddress) {
+            if (tokenAddress === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                // ETH balance
+                const balance = await web3.eth.getBalance(userAddress);
+                return web3.utils.fromWei(balance, 'ether');
+            } else {
+                // ERC20 token balance
+                const tokenContract = new web3.eth.Contract([
+                    {
+                        "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+                        "name": "balanceOf",
+                        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                        "stateMutability": "view",
+                        "type": "function"
+                    }
+                ], tokenAddress);
+                
+                const balance = await tokenContract.methods.balanceOf(userAddress).call();
+                return web3.utils.fromWei(balance, 'ether');
+            }
+        }
+        
+        // Populate token list in modal
+        function populateTokenList() {
+            const searchTerm = document.getElementById('tokenSearch').value.toLowerCase();
+            const tokenList = document.getElementById('tokenList');
+            tokenList.innerHTML = '';
+            
+            const filteredTokens = commonTokens.filter(token => 
+                token.symbol.toLowerCase().includes(searchTerm) || 
+                token.name.toLowerCase().includes(searchTerm) ||
+                token.address.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filteredTokens.length === 0) {
+                tokenList.innerHTML = '<p class="text-muted text-center">No tokens found</p>';
+                return;
+            }
+            
+            filteredTokens.forEach(token => {
+                const tokenItem = document.createElement('div');
+                tokenItem.className = 'token-modal-item d-flex justify-content-between align-items-center';
+                tokenItem.innerHTML = `
+                    <div>
+                        <div class="fw-bold">${token.symbol}</div>
+                        <div class="text-muted small">${token.name}</div>
+                    </div>
+                `;
+                
+                tokenItem.addEventListener('click', () => {
+                    selectToken(token);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('tokenModal'));
+                    modal.hide();
+                });
+                
+                tokenList.appendChild(tokenItem);
+            });
+        }
+        
+        // Select token
+        function selectToken(token) {
+            if (selectedTokenType === 'from') {
+                fromToken = token;
+                document.getElementById('fromTokenSymbol').textContent = token.symbol;
+                document.getElementById('fromAmount').value = '';
+                document.getElementById('toAmount').value = '';
+                updateBalances();
+            } else if (selectedTokenType === 'to') {
+                toToken = token;
+                document.getElementById('toTokenSymbol').textContent = token.symbol;
+                document.getElementById('toAmount').value = '';
+                updateBalances();
+            } else if (selectedTokenType === 'tokenA') {
+                tokenA = token;
+                document.getElementById('tokenASymbol').textContent = token.symbol;
+                document.getElementById('tokenAAmount').value = '';
+                document.getElementById('tokenBAmount').value = '';
+                updateBalances();
+            } else if (selectedTokenType === 'tokenB') {
+                tokenB = token;
+                document.getElementById('tokenBSymbol').textContent = token.symbol;
+                document.getElementById('tokenBAmount').value = '';
+                document.getElementById('tokenAAmount').value = '';
+                updateBalances();
+            }
+            
+            // Enable buttons if conditions are met
+            updateButtonStates();
+        }
+        
+        // Update swap output based on input
+        async function updateSwapOutput() {
+            const amountIn = document.getElementById('fromAmount').value;
+            
+            if (!amountIn || parseFloat(amountIn) <= 0 || !fromToken || !toToken) {
+                document.getElementById('toAmount').value = '';
+                document.getElementById('exchangeRate').textContent = '-';
+                document.getElementById('priceImpact').textContent = '-';
+                return;
+            }
+            
+            try {
+                // Get reserves from the contract
+                const reserveIn = await contract.methods.reserves(fromToken.address, toToken.address).call();
+                const reserveOut = await contract.methods.reserves(toToken.address, fromToken.address).call();
+                
+                if (reserveIn <= 0 || reserveOut <= 0) {
+                    document.getElementById('toAmount').value = '0';
+                    document.getElementById('exchangeRate').textContent = 'No liquidity';
+                    document.getElementById('priceImpact').textContent = '-';
+                    return;
+                }
+                
+                // Calculate amount out
+                const amountInWei = web3.utils.toWei(amountIn, 'ether');
+                const amountOutWei = await contract.methods.getAmountOut(amountInWei, reserveIn, reserveOut).call();
+                const amountOut = web3.utils.fromWei(amountOutWei, 'ether');
+                
+                document.getElementById('toAmount').value = amountOut;
+                
+                // Calculate exchange rate
+                const exchangeRate = (amountOut / amountIn).toFixed(6);
+                document.getElementById('exchangeRate').textContent = `1 ${fromToken.symbol} = ${exchangeRate} ${toToken.symbol}`;
+                
+                // Simple price impact calculation (for demo)
+                const priceImpact = ((amountIn / (parseFloat(web3.utils.fromWei(reserveIn, 'ether')) + parseFloat(amountOut) / (parseFloat(web3.utils.fromWei(reserveOut, 'ether'))) * 100;
+                document.getElementById('priceImpact').textContent = `${priceImpact.toFixed(4)}%`;
+                
+            } catch (error) {
+                console.error("Error calculating swap output:", error);
+                document.getElementById('toAmount').value = '';
+                document.getElementById('exchangeRate').textContent = '-';
+                document.getElementById('priceImpact').textContent = '-';
+            }
+        }
+        
+        // Update token B amount based on token A input (for liquidity)
+        async function updateTokenBAmount() {
+            const amountA = document.getElementById('tokenAAmount').value;
+            
+            if (!amountA || parseFloat(amountA) <= 0 || !tokenA || !tokenB) {
+                document.getElementById('tokenBAmount').value = '';
+                return;
+            }
+            
+            try {
+                // In a real DEX, this would calculate the optimal amount based on pool ratios
+                // For simplicity, we'll just use a 1:1 ratio in this demo
+                document.getElementById('tokenBAmount').value = amountA;
+            } catch (error) {
+                console.error("Error calculating token B amount:", error);
+                document.getElementById('tokenBAmount').value = '';
+            }
+        }
+        
+        // Update token A amount based on token B input (for liquidity)
+        async function updateTokenAAmount() {
+            const amountB = document.getElementById('tokenBAmount').value;
+            
+            if (!amountB || parseFloat(amountB) <= 0 || !tokenA || !tokenB) {
+                document.getElementById('tokenAAmount').value = '';
+                return;
+            }
+            
+            try {
+                // In a real DEX, this would calculate the optimal amount based on pool ratios
+                // For simplicity, we'll just use a 1:1 ratio in this demo
+                document.getElementById('tokenAAmount').value = amountB;
+            } catch (error) {
+                console.error("Error calculating token A amount:", error);
+                document.getElementById('tokenAAmount').value = '';
+            }
+        }
+        
+        // Switch tokens in swap
+        function switchTokens() {
+            if (!fromToken || !toToken) return;
+            
+            const tempToken = fromToken;
+            fromToken = toToken;
+            toToken = tempToken;
+            
+            document.getElementById('fromTokenSymbol').textContent = fromToken.symbol;
+            document.getElementById('toTokenSymbol').textContent = toToken.symbol;
+            
+            const fromAmount = document.getElementById('fromAmount').value;
+            const toAmount = document.getElementById('toAmount').value;
+            
+            document.getElementById('fromAmount').value = toAmount;
+            document.getElementById('toAmount').value = fromAmount;
+            
+            updateBalances();
+        }
+        
+        // Update button states based on conditions
+        function updateButtonStates() {
+            // Swap button
+            const swapBtn = document.getElementById('swapBtn');
+            const fromAmount = document.getElementById('fromAmount').value;
+            
+            if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0 && 
+                document.getElementById('toAmount').value && parseFloat(document.getElementById('toAmount').value) > 0) {
+                swapBtn.disabled = false;
+            } else {
+                swapBtn.disabled = true;
+            }
+            
+            // Add liquidity button
+            const addLiqBtn = document.getElementById('addLiquidityBtn');
+            const tokenAAmount = document.getElementById('tokenAAmount').value;
+            const tokenBAmount = document.getElementById('tokenBAmount').value;
+            
+            if (tokenA && tokenB && tokenAAmount && parseFloat(tokenAAmount) > 0 && 
+                tokenBAmount && parseFloat(tokenBAmount) > 0) {
+                addLiqBtn.disabled = false;
+            } else {
+                addLiqBtn.disabled = true;
+            }
+        }
+        
+        // Execute swap
+        async function executeSwap() {
+            if (accounts.length === 0 || !fromToken || !toToken) return;
+            
+            const fromAmount = document.getElementById('fromAmount').value;
+            if (!fromAmount || parseFloat(fromAmount) <= 0) return;
+            
+            try {
+                const amountInWei = web3.utils.toWei(fromAmount, 'ether');
+                
+                // For ERC20 tokens, we need to approve the contract to spend tokens
+                if (fromToken.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                    const tokenContract = new web3.eth.Contract([
+                        {
+                            "inputs": [
+                                {"internalType": "address", "name": "spender", "type": "address"},
+                                {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                            ],
+                            "name": "approve",
+                            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        }
+                    ], fromToken.address);
+                    
+                    await tokenContract.methods.approve(contractAddress, amountInWei).send({ from: accounts[0] });
+                }
+                
+                // Execute swap
+                await contract.methods.swap(
+                    fromToken.address,
+                    toToken.address,
+                    amountInWei
+                ).send({ from: accounts[0] });
+                
+                alert('Swap executed successfully!');
+                
+                // Reset inputs and update balances
+                document.getElementById('fromAmount').value = '';
+                document.getElementById('toAmount').value = '';
+                updateBalances();
+                
+            } catch (error) {
+                console.error("Error executing swap:", error);
+                alert('Swap failed: ' + error.message);
+            }
+        }
+        
+        // Add liquidity
+        async function addLiquidity() {
+            if (accounts.length === 0 || !tokenA || !tokenB) return;
+            
+            const amountA = document.getElementById('tokenAAmount').value;
+            const amountB = document.getElementById('tokenBAmount').value;
+            
+            if (!amountA || parseFloat(amountA) <= 0 || !amountB || parseFloat(amountB) <= 0) return;
+            
+            try {
+                const amountAWei = web3.utils.toWei(amountA, 'ether');
+                const amountBWei = web3.utils.toWei(amountB, 'ether');
+                
+                // Approve token A if it's an ERC20
+                if (tokenA.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                    const tokenAContract = new web3.eth.Contract([
+                        {
+                            "inputs": [
+                                {"internalType": "address", "name": "spender", "type": "address"},
+                                {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                            ],
+                            "name": "approve",
+                            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        }
+                    ], tokenA.address);
+                    
+                    await tokenAContract.methods.approve(contractAddress, amountAWei).send({ from: accounts[0] });
+                }
+                
+                // Approve token B if it's an ERC20
+                if (tokenB.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                    const tokenBContract = new web3.eth.Contract([
+                        {
+                            "inputs": [
+                                {"internalType": "address", "name": "spender", "type": "address"},
+                                {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                            ],
+                            "name": "approve",
+                            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        }
+                    ], tokenB.address);
+                    
+                    await tokenBContract.methods.approve(contractAddress, amountBWei).send({ from: accounts[0] });
+                }
+                
+                // Add liquidity
+                await contract.methods.addLiquidity(
+                    tokenA.address,
+                    tokenB.address,
+                    amountAWei,
+                    amountBWei
+                ).send({ from: accounts[0] });
+                
+                alert('Liquidity added successfully!');
+                
+                // Reset inputs and update balances
+                document.getElementById('tokenAAmount').value = '';
+                document.getElementById('tokenBAmount').value = '';
+                updateBalances();
+                loadLiquidityPositions();
+                
+            } catch (error) {
+                console.error("Error adding liquidity:", error);
+                alert('Adding liquidity failed: ' + error.message);
+            }
+        }
+        
+        // Load liquidity positions (simplified for demo)
+        async function loadLiquidityPositions() {
+            if (accounts.length === 0) return;
+            
+            // In a real implementation, you would query the contract for LP positions
+            // For this demo, we'll just show a placeholder
+            const positionsContainer = document.getElementById('liquidityPositions');
+            positionsContainer.innerHTML = '<p class="text-muted text-center">No liquidity positions found</p>';
+        }
+        
+        // Initialize the app when the page loads
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
