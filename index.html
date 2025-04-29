@@ -2,111 +2,1324 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>P2P Token Trade</title>
-
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Correct ethers.js -->
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleSwap DEX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #3f80ff;
+            --error-color: #ff3f3f;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --text-color: #212529;
+            --light-text: #6c757d;
+            --bg-color: #f7f8fa;
+            --card-bg: #ffffff;
+            --border-color: #edeef2;
+        }
+        
         body {
-            background-color: #121212;
-            color: #ffffff;
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
+        
+        .header, .footer {
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
         .card {
-            background-color: #1f1f1f;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
         }
-        input {
-            margin-bottom: 10px;
+        
+        .nav-tabs .nav-link {
+            color: var(--light-text);
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            background: transparent;
+        }
+        
+        .token-input {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .token-select {
+            cursor: pointer;
+            background-color: var(--border-color);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .token-select:hover {
+            background-color: #e2e4eb;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3772e5;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .connect-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .disconnect-btn {
+            background-color: var(--error-color);
+            color: white;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .disconnect-btn:hover {
+            background-color: #e63939;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .token-modal-item {
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .token-modal-item:hover {
+            background-color: var(--bg-color);
+        }
+        
+        .transaction-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        
+        .transaction-alert {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 350px;
+            border: none;
+        }
+        
+        .loading-spinner {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-width: 0.2em;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+        
+        .footer {
+            padding: 1rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+        
+        .wallet-address {
+            font-family: monospace;
+            background-color: var(--bg-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .network-indicator {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
         }
     </style>
 </head>
-
-<body class="container py-5">
-    <h1 class="text-center mb-5">🚀 P2P Token Trading</h1>
-
-    <div class="d-flex justify-content-center mb-4">
-        <button onclick="connectWallet()" class="btn btn-primary">Connect Wallet</button>
-    </div>
-
-    <div class="row">
-        <!-- Create Offer -->
-        <div class="col-md-6">
-            <div class="card">
-                <h3>Create Offer</h3>
-                <input id="tokenOffered" class="form-control" placeholder="Token Offered Address">
-                <input id="amountOffered" class="form-control" placeholder="Amount Offered">
-                <input id="tokenRequested" class="form-control" placeholder="Token Requested Address">
-                <input id="amountRequested" class="form-control" placeholder="Amount Requested">
-                <button onclick="createOffer()" class="btn btn-success w-100 mt-2">Create Offer</button>
+<body>
+    <!-- Header -->
+    <header class="header py-3">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <h5 class="m-0 me-3">SimpleSwap</h5>
+                    <span id="networkIndicator" class="network-indicator d-none">Mainnet</span>
+                </div>
+                <div>
+                    <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
+                    <div id="walletInfo" class="d-none">
+                        <span class="wallet-address me-2" id="walletAddress"></span>
+                        <button id="disconnectWalletBtn" class="disconnect-btn">Disconnect</button>
+                    </div>
+                </div>
             </div>
         </div>
+    </header>
 
-        <!-- Accept Offer -->
-        <div class="col-md-6">
-            <div class="card">
-                <h3>Accept Offer</h3>
-                <input id="offerIdAccept" class="form-control" placeholder="Offer ID">
-                <button onclick="acceptOffer()" class="btn btn-warning w-100 mt-2">Accept Offer</button>
+    <!-- Transaction Status Alerts -->
+    <div class="transaction-status">
+        <!-- Will be populated dynamically -->
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content py-4">
+        <div class="container" style="max-width: 500px;">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs mb-4" id="dexTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="swap-tab" data-bs-toggle="tab" data-bs-target="#swap" type="button" role="tab">Swap</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="liquidity-tab" data-bs-toggle="tab" data-bs-target="#liquidity" type="button" role="tab">Liquidity</button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Swap Tab -->
+                <div class="tab-pane fade show active" id="swap" role="tabpanel">
+                    <div class="card p-3 mb-3">
+                        <div class="token-input mb-2">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>From</span>
+                                <span>Balance: <span id="fromTokenBalance">0</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <input type="number" id="fromAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;">
+                                <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="from">
+                                    <span id="fromTokenSymbol">Select Token</span>
+                                    <i class="fas fa-chevron-down ms-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center my-2">
+                            <button id="switchTokensBtn" class="btn btn-light rounded-circle" style="width: 36px; height: 36px;">
+                                <i class="fas fa-arrow-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="token-input">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>To</span>
+                                <span>Balance: <span id="toTokenBalance">0</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <input type="number" id="toAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;" readonly>
+                                <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="to">
+                                    <span id="toTokenSymbol">Select Token</span>
+                                    <i class="fas fa-chevron-down ms-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="swapBtn" class="btn btn-primary w-100" disabled>
+                        <span id="swapBtnText">Swap</span>
+                        <span id="swapBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                    
+                    <div class="card p-3 mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Exchange Rate</span>
+                            <span id="exchangeRate">-</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Price Impact</span>
+                            <span id="priceImpact">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liquidity Tab -->
+                <div class="tab-pane fade" id="liquidity" role="tabpanel">
+                    <div class="card p-3 mb-3">
+                        <div class="token-input mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Token A</span>
+                                <span>Balance: <span id="tokenABalance">0</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <input type="number" id="tokenAAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;">
+                                <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="tokenA">
+                                    <span id="tokenASymbol">Select Token</span>
+                                    <i class="fas fa-chevron-down ms-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center my-2">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        
+                        <div class="token-input mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Token B</span>
+                                <span>Balance: <span id="tokenBBalance">0</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <input type="number" id="tokenBAmount" class="form-control border-0 bg-transparent p-0" placeholder="0.0" style="font-size: 24px; font-weight: 500; box-shadow: none;">
+                                <div class="token-select" data-bs-toggle="modal" data-bs-target="#tokenModal" data-token="tokenB">
+                                    <span id="tokenBSymbol">Select Token</span>
+                                    <i class="fas fa-chevron-down ms-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="addLiquidityBtn" class="btn btn-primary w-100" disabled>
+                        <span id="addLiquidityBtnText">Add Liquidity</span>
+                        <span id="addLiquidityBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                    
+                    <div class="card p-3 mt-3">
+                        <h6 class="mb-3">Your Liquidity Positions</h6>
+                        <div id="liquidityPositions">
+                            <p class="text-muted text-center">No liquidity positions found</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="d-flex justify-content-center">
+                <a href="#" class="text-decoration-none mx-2">Terms</a>
+                <a href="#" class="text-decoration-none mx-2">Privacy</a>
+                <a href="#" class="text-decoration-none mx-2">Docs</a>
+                <a href="#" class="text-decoration-none mx-2">GitHub</a>
+            </div>
+            <div class="mt-2 text-muted small">
+                © 2023 SimpleSwap DEX. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Token Modal -->
+    <div class="modal fade" id="tokenModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Token</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="tokenSearch" class="form-control" placeholder="Search token name or paste address">
+                    </div>
+                    <div id="tokenList">
+                        <!-- Tokens will be populated here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Expire Offer -->
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <h3>Expire Offer</h3>
-                <input id="offerIdExpire" class="form-control" placeholder="Offer ID">
-                <button onclick="expireOffer()" class="btn btn-danger w-100 mt-2">Expire Offer</button>
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-exclamation-circle text-danger me-3" style="font-size: 2rem;"></i>
+                        <p class="m-0" id="errorMessage">An unknown error occurred</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Ethers + Web3 -->
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-success">Success</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-check-circle text-success me-3" style="font-size: 2rem;"></i>
+                        <p class="m-0" id="successMessage">Transaction completed successfully</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
-        let provider, signer, contract;
-
-        const CONTRACT_ADDRESS = "0x557Bb8f27FEe8186B5594abED96495255fE634e8";
-        const CONTRACT_ABI = [ /* paste your ABI here */ ];
-
-        async function connectWallet() {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
-            signer = provider.getSigner();
-            contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-            alert("Wallet Connected");
+        // Contract ABI and Address
+        const contractABI = [
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "tokenA", "type": "address"},
+                    {"internalType": "address", "name": "tokenB", "type": "address"},
+                    {"internalType": "uint256", "name": "amountA", "type": "uint256"},
+                    {"internalType": "uint256", "name": "amountB", "type": "uint256"}
+                ],
+                "name": "addLiquidity",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "fromToken", "type": "address"},
+                    {"internalType": "address", "name": "toToken", "type": "address"},
+                    {"internalType": "uint256", "name": "amountIn", "type": "uint256"}
+                ],
+                "name": "swap",
+                "outputs": [{"internalType": "uint256", "name": "amountOut", "type": "uint256"}],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "", "type": "address"},
+                    {"internalType": "address", "name": "", "type": "address"}
+                ],
+                "name": "reserves",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "uint256", "name": "amountIn", "type": "uint256"},
+                    {"internalType": "uint256", "name": "reserveIn", "type": "uint256"},
+                    {"internalType": "uint256", "name": "reserveOut", "type": "uint256"}
+                ],
+                "name": "getAmountOut",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "pure",
+                "type": "function"
+            }
+        ];
+        
+        // Contract address
+        const contractAddress = "0x557Bb8f27FEe8186B5594abED96495255fE634e8";
+        
+        // Common ERC20 tokens for Polygon testnet
+        const commonTokens = [
+            { 
+                address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270", // WMATIC
+                symbol: "WMATIC", 
+                name: "Wrapped Matic",
+                decimals: 18
+            },
+            { 
+                address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", // USDT
+                symbol: "USDT", 
+                name: "Tether USD",
+                decimals: 6
+            },
+            { 
+                address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // USDC
+                symbol: "USDC", 
+                name: "USD Coin",
+                decimals: 6
+            },
+            { 
+                address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", // DAI
+                symbol: "DAI", 
+                name: "Dai Stablecoin",
+                decimals: 18
+            }
+        ];
+        
+        // Global variables
+        let web3;
+        let ethersProvider;
+        let contract;
+        let accounts = [];
+        let selectedTokenType = "";
+        let fromToken = null;
+        let toToken = null;
+        let tokenA = null;
+        let tokenB = null;
+        let chainId = null;
+        
+        // Initialize the app
+        async function init() {
+            try {
+                // Check if MetaMask is installed
+                if (typeof window.ethereum !== 'undefined') {
+                    web3 = new Web3(window.ethereum);
+                    ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+                    contract = new web3.eth.Contract(contractABI, contractAddress);
+                    
+                    // Set up event listeners
+                    setupEventListeners();
+                    
+                    // Check if already connected
+                    const connectedAccounts = await web3.eth.getAccounts();
+                    if (connectedAccounts.length > 0) {
+                        accounts = connectedAccounts;
+                        chainId = await web3.eth.getChainId();
+                        updateUI();
+                    }
+                    
+                    // Handle chain changes
+                    window.ethereum.on('chainChanged', (newChainId) => {
+                        chainId = parseInt(newChainId, 16);
+                        updateNetworkIndicator();
+                        window.location.reload();
+                    });
+                    
+                    // Handle account changes
+                    window.ethereum.on('accountsChanged', (newAccounts) => {
+                        accounts = newAccounts;
+                        updateUI();
+                    });
+                } else {
+                    showError("Please install MetaMask to use this DEX!");
+                }
+            } catch (error) {
+                showError("Failed to initialize application: " + error.message);
+            }
         }
-
-        async function createOffer() {
-            const tokenOffered = document.getElementById('tokenOffered').value;
-            const amountOffered = ethers.utils.parseUnits(document.getElementById('amountOffered').value, 18);
-            const tokenRequested = document.getElementById('tokenRequested').value;
-            const amountRequested = ethers.utils.parseUnits(document.getElementById('amountRequested').value, 18);
-
-            const tx = await contract.createOffer(tokenOffered, amountOffered, tokenRequested, amountRequested);
-            await tx.wait();
-            alert("Offer Created!");
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Wallet connection
+            document.getElementById('connectWalletBtn').addEventListener('click', connectWalletWithSignature);
+            document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
+            
+            // Swap inputs
+            document.getElementById('fromAmount').addEventListener('input', updateSwapOutput);
+            document.getElementById('swapBtn').addEventListener('click', executeSwap);
+            document.getElementById('switchTokensBtn').addEventListener('click', switchTokens);
+            
+            // Liquidity inputs
+            document.getElementById('tokenAAmount').addEventListener('input', updateTokenBAmount);
+            document.getElementById('tokenBAmount').addEventListener('input', updateTokenAAmount);
+            document.getElementById('addLiquidityBtn').addEventListener('click', addLiquidity);
+            
+            // Token selection
+            document.querySelectorAll('.token-select').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectedTokenType = this.getAttribute('data-token');
+                    populateTokenList();
+                });
+            });
+            
+            // Token search
+            document.getElementById('tokenSearch').addEventListener('input', populateTokenList);
         }
-
-        async function acceptOffer() {
-            const offerId = document.getElementById('offerIdAccept').value;
-            const tx = await contract.acceptOffer(offerId);
-            await tx.wait();
-            alert("Offer Accepted!");
+        
+        // Connect to MetaMask with signature (like Uniswap)
+        async function connectWalletWithSignature() {
+            try {
+                showTransactionAlert("Connecting to wallet...", "info");
+                
+                // Request account access
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                chainId = await web3.eth.getChainId();
+                
+                // Check if we're on Polygon mainnet (chainId: 137)
+                if (chainId !== 137) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x89' }], // 0x89 is Polygon mainnet
+                        });
+                        chainId = 137;
+                    } catch (switchError) {
+                        // This error code indicates that the chain has not been added to MetaMask
+                        if (switchError.code === 4902) {
+                            showError("Please add Polygon network to your wallet");
+                        } else {
+                            showError("Failed to switch to Polygon network");
+                        }
+                        return;
+                    }
+                }
+                
+                // Request signature for authentication
+                const signer = ethersProvider.getSigner();
+                const message = "Welcome to SimpleSwap!\n\nPlease sign this message to connect your wallet.\n\nThis request will not trigger a blockchain transaction or cost any gas fees.";
+                
+                try {
+                    const signature = await signer.signMessage(message);
+                    showTransactionAlert("Wallet connected successfully", "success");
+                    
+                    // Update UI with connected wallet
+                    updateUI();
+                } catch (signError) {
+                    if (signError.code === 4001) {
+                        showError("Signature request rejected by user");
+                    } else {
+                        showError("Failed to authenticate: " + signError.message);
+                    }
+                }
+            } catch (error) {
+                let errorMsg = "Failed to connect wallet";
+                if (error.code === 4001) {
+                    errorMsg = "Wallet connection rejected by user";
+                }
+                showError(errorMsg);
+            }
         }
-
-        async function expireOffer() {
-            const offerId = document.getElementById('offerIdExpire').value;
-            const tx = await contract.expireOffer(offerId);
-            await tx.wait();
-            alert("Offer Expired!");
+        
+        // Disconnect wallet
+        function disconnectWallet() {
+            accounts = [];
+            updateUI();
+            showTransactionAlert("Wallet disconnected", "info");
         }
+        
+        // Update UI based on connection state
+        function updateUI() {
+            try {
+                if (accounts.length > 0) {
+                    document.getElementById('connectWalletBtn').classList.add('d-none');
+                    document.getElementById('walletInfo').classList.remove('d-none');
+                    
+                    // Truncate wallet address for display
+                    const walletAddress = accounts[0];
+                    const truncatedAddress = `${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}`;
+                    document.getElementById('walletAddress').textContent = truncatedAddress;
+                    
+                    // Update network indicator
+                    updateNetworkIndicator();
+                    
+                    // Update balances
+                    updateBalances();
+                    
+                    // Load liquidity positions
+                    loadLiquidityPositions();
+                } else {
+                    document.getElementById('connectWalletBtn').classList.remove('d-none');
+                    document.getElementById('walletInfo').classList.add('d-none');
+                    document.getElementById('networkIndicator').classList.add('d-none');
+                    
+                    // Reset balances
+                    document.getElementById('fromTokenBalance').textContent = '0';
+                    document.getElementById('toTokenBalance').textContent = '0';
+                    document.getElementById('tokenABalance').textContent = '0';
+                    document.getElementById('tokenBBalance').textContent = '0';
+                    
+                    // Disable buttons
+                    document.getElementById('swapBtn').disabled = true;
+                    document.getElementById('addLiquidityBtn').disabled = true;
+                }
+            } catch (error) {
+                showError("Failed to update UI: " + error.message);
+            }
+        }
+        
+        // Update network indicator
+        function updateNetworkIndicator() {
+            const networkIndicator = document.getElementById('networkIndicator');
+            
+            if (chainId === 137) {
+                networkIndicator.textContent = "Polygon";
+                networkIndicator.style.backgroundColor = "#8247e5"; // Polygon purple
+                networkIndicator.classList.remove('d-none');
+            } else {
+                networkIndicator.textContent = "Unsupported Network";
+                networkIndicator.style.backgroundColor = "#ff3f3f";
+                networkIndicator.classList.remove('d-none');
+            }
+        }
+        
+        // Update token balances
+        async function updateBalances() {
+            try {
+                if (accounts.length === 0) return;
+                
+                const address = accounts[0];
+                
+                // Update fromToken balance
+                if (fromToken) {
+                    const balance = await getTokenBalance(fromToken.address, address);
+                    document.getElementById('fromTokenBalance').textContent = formatBalance(balance, fromToken.decimals);
+                }
+                
+                // Update toToken balance
+                if (toToken) {
+                    const balance = await getTokenBalance(toToken.address, address);
+                    document.getElementById('toTokenBalance').textContent = formatBalance(balance, toToken.decimals);
+                }
+                
+                // Update tokenA balance
+                if (tokenA) {
+                    const balance = await getTokenBalance(tokenA.address, address);
+                    document.getElementById('tokenABalance').textContent = formatBalance(balance, tokenA.decimals);
+                }
+                
+                // Update tokenB balance
+                if (tokenB) {
+                    const balance = await getTokenBalance(tokenB.address, address);
+                    document.getElementById('tokenBBalance').textContent = formatBalance(balance, tokenB.decimals);
+                }
+            } catch (error) {
+                showError("Failed to update balances: " + error.message);
+            }
+        }
+        
+        // Get token balance
+        async function getTokenBalance(tokenAddress, userAddress) {
+            try {
+                if (tokenAddress === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                    // ETH balance
+                    const balance = await web3.eth.getBalance(userAddress);
+                    return balance;
+                } else {
+                    // ERC20 token balance
+                    const tokenContract = new web3.eth.Contract([
+                        {
+                            "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+                            "name": "balanceOf",
+                            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                            "stateMutability": "view",
+                            "type": "function"
+                        }
+                    ], tokenAddress);
+                    
+                    const balance = await tokenContract.methods.balanceOf(userAddress).call();
+                    return balance;
+                }
+            } catch (error) {
+                showError("Failed to get token balance: " + error.message);
+                return "0";
+            }
+        }
+        
+        // Format balance with decimals
+        function formatBalance(balance, decimals = 18) {
+            if (!balance) return "0";
+            
+            const balanceStr = balance.toString();
+            if (balanceStr === "0") return "0";
+            
+            // For tokens with 18 decimals (most tokens)
+            if (decimals === 18) {
+                return web3.utils.fromWei(balance, 'ether');
+            }
+            
+            // For tokens with different decimals (like USDT with 6 decimals)
+            const whole = balanceStr.substring(0, balanceStr.length - decimals) || "0";
+            const fraction = balanceStr.substring(balanceStr.length - decimals).replace(/0+$/, '');
+            
+            if (fraction === "") {
+                return whole;
+            } else {
+                return `${whole}.${fraction}`.replace(/\.?0+$/, '');
+            }
+        }
+        
+        // Populate token list in modal
+        function populateTokenList() {
+            try {
+                const searchTerm = document.getElementById('tokenSearch').value.toLowerCase();
+                const tokenList = document.getElementById('tokenList');
+                tokenList.innerHTML = '';
+                
+                const filteredTokens = commonTokens.filter(token => 
+                    token.symbol.toLowerCase().includes(searchTerm) || 
+                    token.name.toLowerCase().includes(searchTerm) ||
+                    token.address.toLowerCase().includes(searchTerm)
+                );
+                
+                if (filteredTokens.length === 0) {
+                    tokenList.innerHTML = '<p class="text-muted text-center">No tokens found</p>';
+                    return;
+                }
+                
+                filteredTokens.forEach(token => {
+                    const tokenItem = document.createElement('div');
+                    tokenItem.className = 'token-modal-item d-flex justify-content-between align-items-center';
+                    tokenItem.innerHTML = `
+                        <div>
+                            <div class="fw-bold">${token.symbol}</div>
+                            <div class="text-muted small">${token.name}</div>
+                        </div>
+                    `;
+                    
+                    tokenItem.addEventListener('click', () => {
+                        selectToken(token);
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('tokenModal'));
+                        modal.hide();
+                    });
+                    
+                    tokenList.appendChild(tokenItem);
+                });
+            } catch (error) {
+                showError("Failed to populate token list: " + error.message);
+            }
+        }
+        
+        // Select token
+        function selectToken(token) {
+            try {
+                if (selectedTokenType === 'from') {
+                    fromToken = token;
+                    document.getElementById('fromTokenSymbol').textContent = token.symbol;
+                    document.getElementById('fromAmount').value = '';
+                    document.getElementById('toAmount').value = '';
+                    updateBalances();
+                } else if (selectedTokenType === 'to') {
+                    toToken = token;
+                    document.getElementById('toTokenSymbol').textContent = token.symbol;
+                    document.getElementById('toAmount').value = '';
+                    updateBalances();
+                } else if (selectedTokenType === 'tokenA') {
+                    tokenA = token;
+                    document.getElementById('tokenASymbol').textContent = token.symbol;
+                    document.getElementById('tokenAAmount').value = '';
+                    document.getElementById('tokenBAmount').value = '';
+                    updateBalances();
+                } else if (selectedTokenType === 'tokenB') {
+                    tokenB = token;
+                    document.getElementById('tokenBSymbol').textContent = token.symbol;
+                    document.getElementById('tokenBAmount').value = '';
+                    document.getElementById('tokenAAmount').value = '';
+                    updateBalances();
+                }
+                
+                // Enable buttons if conditions are met
+                updateButtonStates();
+            } catch (error) {
+                showError("Failed to select token: " + error.message);
+            }
+        }
+        
+        // Update swap output based on input
+        async function updateSwapOutput() {
+            try {
+                const amountIn = document.getElementById('fromAmount').value;
+                
+                if (!amountIn || parseFloat(amountIn) <= 0 || !fromToken || !toToken) {
+                    document.getElementById('toAmount').value = '';
+                    document.getElementById('exchangeRate').textContent = '-';
+                    document.getElementById('priceImpact').textContent = '-';
+                    updateButtonStates();
+                    return;
+                }
+                
+                // Get reserves from the contract
+                const reserveIn = await contract.methods.reserves(fromToken.address, toToken.address).call();
+                const reserveOut = await contract.methods.reserves(toToken.address, fromToken.address).call();
+                
+                if (reserveIn <= 0 || reserveOut <= 0) {
+                    document.getElementById('toAmount').value = '0';
+                    document.getElementById('exchangeRate').textContent = 'No liquidity';
+                    document.getElementById('priceImpact').textContent = '-';
+                    updateButtonStates();
+                    return;
+                }
+                
+                // Calculate amount out
+                const amountInWei = toWei(amountIn, fromToken.decimals);
+                const amountOutWei = await contract.methods.getAmountOut(amountInWei, reserveIn, reserveOut).call();
+                const amountOut = fromWei(amountOutWei, toToken.decimals);
+                
+                document.getElementById('toAmount').value = amountOut;
+                
+                // Calculate exchange rate
+                const exchangeRate = (amountOut / amountIn).toFixed(6);
+                document.getElementById('exchangeRate').textContent = `1 ${fromToken.symbol} = ${exchangeRate} ${toToken.symbol}`;
+                
+                // Simple price impact calculation (for demo)
+                const priceImpact = ((amountIn / (parseFloat(fromWei(reserveIn, fromToken.decimals)) + parseFloat(amountOut)) / (parseFloat(fromWei(reserveOut, toToken.decimals)))) * 100;
+                document.getElementById('priceImpact').textContent = `${priceImpact.toFixed(4)}%`;
+                
+                updateButtonStates();
+            } catch (error) {
+                console.error("Error calculating swap output:", error);
+                document.getElementById('toAmount').value = '';
+                document.getElementById('exchangeRate').textContent = '-';
+                document.getElementById('priceImpact').textContent = '-';
+                showError("Failed to calculate swap output: " + error.message);
+            }
+        }
+        
+        // Convert to wei based on token decimals
+        function toWei(amount, decimals = 18) {
+            if (decimals === 18) {
+                return web3.utils.toWei(amount.toString(), 'ether');
+            }
+            
+            const amountStr = amount.toString();
+            const decimalIndex = amountStr.indexOf('.');
+            
+            if (decimalIndex === -1) {
+                return amountStr + '0'.repeat(decimals);
+            } else {
+                const whole = amountStr.substring(0, decimalIndex);
+                let fraction = amountStr.substring(decimalIndex + 1);
+                
+                // Pad with zeros if needed
+                fraction = fraction + '0'.repeat(decimals - fraction.length);
+                
+                return whole + fraction.substring(0, decimals);
+            }
+        }
+        
+        // Convert from wei based on token decimals
+        function fromWei(amount, decimals = 18) {
+            if (decimals === 18) {
+                return web3.utils.fromWei(amount, 'ether');
+            }
+            
+            const amountStr = amount.toString().padStart(decimals, '0');
+            const whole = amountStr.substring(0, amountStr.length - decimals) || "0";
+            const fraction = amountStr.substring(amountStr.length - decimals).replace(/0+$/, '');
+            
+            if (fraction === "") {
+                return whole;
+            } else {
+                return `${whole}.${fraction}`.replace(/\.?0+$/, '');
+            }
+        }
+        
+        // Update token B amount based on token A input (for liquidity)
+        async function updateTokenBAmount() {
+            try {
+                const amountA = document.getElementById('tokenAAmount').value;
+                
+                if (!amountA || parseFloat(amountA) <= 0 || !tokenA || !tokenB) {
+                    document.getElementById('tokenBAmount').value = '';
+                    updateButtonStates();
+                    return;
+                }
+                
+                // In a real DEX, this would calculate the optimal amount based on pool ratios
+                // For simplicity, we'll just use a 1:1 ratio in this demo
+                document.getElementById('tokenBAmount').value = amountA;
+                updateButtonStates();
+            } catch (error) {
+                console.error("Error calculating token B amount:", error);
+                document.getElementById('tokenBAmount').value = '';
+                showError("Failed to calculate token amounts: " + error.message);
+            }
+        }
+        
+        // Update token A amount based on token B input (for liquidity)
+        async function updateTokenAAmount() {
+            try {
+                const amountB = document.getElementById('tokenBAmount').value;
+                
+                if (!amountB || parseFloat(amountB) <= 0 || !tokenA || !tokenB) {
+                    document.getElementById('tokenAAmount').value = '';
+                    updateButtonStates();
+                    return;
+                }
+                
+                // In a real DEX, this would calculate the optimal amount based on pool ratios
+                // For simplicity, we'll just use a 1:1 ratio in this demo
+                document.getElementById('tokenAAmount').value = amountB;
+                updateButtonStates();
+            } catch (error) {
+                console.error("Error calculating token A amount:", error);
+                document.getElementById('tokenAAmount').value = '';
+                showError("Failed to calculate token amounts: " + error.message);
+            }
+        }
+        
+        // Switch tokens in swap
+        function switchTokens() {
+            try {
+                if (!fromToken || !toToken) return;
+                
+                const tempToken = fromToken;
+                fromToken = toToken;
+                toToken = tempToken;
+                
+                document.getElementById('fromTokenSymbol').textContent = fromToken.symbol;
+                document.getElementById('toTokenSymbol').textContent = toToken.symbol;
+                
+                const fromAmount = document.getElementById('fromAmount').value;
+                const toAmount = document.getElementById('toAmount').value;
+                
+                document.getElementById('fromAmount').value = toAmount;
+                document.getElementById('toAmount').value = fromAmount;
+                
+                updateBalances();
+                updateSwapOutput();
+            } catch (error) {
+                showError("Failed to switch tokens: " + error.message);
+            }
+        }
+        
+        // Update button states based on conditions
+        function updateButtonStates() {
+            try {
+                // Swap button
+                const swapBtn = document.getElementById('swapBtn');
+                const fromAmount = document.getElementById('fromAmount').value;
+                
+                if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0 && 
+                    document.getElementById('toAmount').value && parseFloat(document.getElementById('toAmount').value) > 0) {
+                    swapBtn.disabled = false;
+                } else {
+                    swapBtn.disabled = true;
+                }
+                
+                // Add liquidity button
+                const addLiqBtn = document.getElementById('addLiquidityBtn');
+                const tokenAAmount = document.getElementById('tokenAAmount').value;
+                const tokenBAmount = document.getElementById('tokenBAmount').value;
+                
+                if (tokenA && tokenB && tokenAAmount && parseFloat(tokenAAmount) > 0 && 
+                    tokenBAmount && parseFloat(tokenBAmount) > 0) {
+                    addLiqBtn.disabled = false;
+                } else {
+                    addLiqBtn.disabled = true;
+                }
+            } catch (error) {
+                console.error("Error updating button states:", error);
+            }
+        }
+        
+        // Execute swap
+        async function executeSwap() {
+            if (accounts.length === 0 || !fromToken || !toToken) {
+                showError("Please connect your wallet and select tokens");
+                return;
+            }
+            
+            const fromAmount = document.getElementById('fromAmount').value;
+            if (!fromAmount || parseFloat(fromAmount) <= 0) {
+                showError("Please enter a valid amount to swap");
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const swapBtn = document.getElementById('swapBtn');
+                const swapBtnText = document.getElementById('swapBtnText');
+                const swapBtnSpinner = document.getElementById('swapBtnSpinner');
+                
+                swapBtn.disabled = true;
+                swapBtnText.textContent = "Swapping...";
+                swapBtnSpinner.classList.remove('d-none');
+                
+                const amountInWei = toWei(fromAmount, fromToken.decimals);
+                
+                // For ERC20 tokens, we need to approve the contract to spend tokens
+                if (fromToken.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                    showTransactionAlert(`Approving ${fromToken.symbol}...`, "info");
+                    
+                    const tokenContract = new web3.eth.Contract([
+                        {
+                            "inputs": [
+                                {"internalType": "address", "name": "spender", "type": "address"},
+                                {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                            ],
+                            "name": "approve",
+                            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        }
+                    ], fromToken.address);
+                    
+                    await tokenContract.methods.approve(contractAddress, amountInWei).send({ from: accounts[0] });
+                }
+                
+                // Execute swap
+                showTransactionAlert("Executing swap...", "info");
+                const tx = await contract.methods.swap(
+                    fromToken.address,
+                    toToken.address,
+                    amountInWei
+                ).send({ from: accounts[0] });
+                
+                // Show success
+                showSuccess(`Successfully swapped ${fromAmount} ${fromToken.symbol} to ${document.getElementById('toAmount').value} ${toToken.symbol}`);
+                
+                // Reset inputs and update balances
+                document.getElementById('fromAmount').value = '';
+                document.getElementById('toAmount').value = '';
+                updateBalances();
+                
+            } catch (error) {
+                let errorMsg = "Swap failed";
+                if (error.code === 4001) {
+                    errorMsg = "Transaction rejected by user";
+                } else if (error.message.includes("revert")) {
+                    errorMsg = "Swap failed: " + parseRevertReason(error.message);
+                } else {
+                    errorMsg = "Swap failed: " + error.message;
+                }
+                showError(errorMsg);
+            } finally {
+                // Reset button state
+                const swapBtn = document.getElementById('swapBtn');
+                const swapBtnText = document.getElementById('swapBtnText');
+                const swapBtnSpinner = document.getElementById('swapBtnSpinner');
+                
+                swapBtn.disabled = false;
+                swapBtnText.textContent = "Swap";
+                swapBtnSpinner.classList.add('d-none');
+                updateButtonStates();
+            }
+        }
+        
+        // Add liquidity
+        async function addLiquidity() {
+            if (accounts.length === 0 || !tokenA || !tokenB) {
+                showError("Please connect your wallet and select tokens");
+                return;
+            }
+            
+            const amountA = document.getElementById('tokenAAmount').value;
+            const amountB = document.getElementById('tokenBAmount').value;
+            
+            if (!amountA || parseFloat(amountA) <= 0 || !amountB || parseFloat(amountB) <= 0) {
+                showError("Please enter valid amounts for both tokens");
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const addLiqBtn = document.getElementById('addLiquidityBtn');
+                const addLiqBtnText = document.getElementById('addLiquidityBtnText');
+                const addLiqBtnSpinner = document.getElementById('addLiquidityBtnSpinner');
+                
+                addLiqBtn.disabled = true;
+                addLiqBtnText.textContent = "Adding Liquidity...";
+                addLiqBtnSpinner.classList.remove('d-none');
+                
+                const amountAWei = toWei(amountA, tokenA.decimals);
+                const amountBWei = toWei(amountB, tokenB.decimals);
+                
+                // Approve token A if it's an ERC20
+                if (tokenA.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                    showTransactionAlert(`Approving ${tokenA.symbol}...`, "info");
+                    
+                    const tokenAContract = new web3.eth.Contract([
+                        {
+                            "inputs": [
+                                {"internalType": "address", "name": "spender", "type": "address"},
+                                {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                            ],
+                            "name": "approve",
+                            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        }
+                    ], tokenA.address);
+                    
+                    await tokenAContract.methods.approve(contractAddress, amountAWei).send({ from: accounts[0] });
+                }
+                
+                // Approve token B if it's an ERC20
+                if (tokenB.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                    showTransactionAlert(`Approving ${tokenB.symbol}...`, "info");
+                    
+                    const tokenBContract = new web3.eth.Contract([
+                        {
+                            "inputs": [
+                                {"internalType": "address", "name": "spender", "type": "address"},
+                                {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                            ],
+                            "name": "approve",
+                            "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        }
+                    ], tokenB.address);
+                    
+                    await tokenBContract.methods.approve(contractAddress, amountBWei).send({ from: accounts[0] });
+                }
+                
+                // Add liquidity
+                showTransactionAlert("Adding liquidity to pool...", "info");
+                const tx = await contract.methods.addLiquidity(
+                    tokenA.address,
+                    tokenB.address,
+                    amountAWei,
+                    amountBWei
+                ).send({ from: accounts[0] });
+                
+                // Show success
+                showSuccess(`Successfully added liquidity (${amountA} ${tokenA.symbol} and ${amountB} ${tokenB.symbol})`);
+                
+                // Reset inputs and update balances
+                document.getElementById('tokenAAmount').value = '';
+                document.getElementById('tokenBAmount').value = '';
+                updateBalances();
+                loadLiquidityPositions();
+                
+            } catch (error) {
+                let errorMsg = "Adding liquidity failed";
+                if (error.code === 4001) {
+                    errorMsg = "Transaction rejected by user";
+                } else if (error.message.includes("revert")) {
+                    errorMsg = "Add liquidity failed: " + parseRevertReason(error.message);
+                } else {
+                    errorMsg = "Add liquidity failed: " + error.message;
+                }
+                showError(errorMsg);
+            } finally {
+                // Reset button state
+                const addLiqBtn = document.getElementById('addLiquidityBtn');
+                const addLiqBtnText = document.getElementById('addLiquidityBtnText');
+                const addLiqBtnSpinner = document.getElementById('addLiquidityBtnSpinner');
+                
+                addLiqBtn.disabled = false;
+                addLiqBtnText.textContent = "Add Liquidity";
+                addLiqBtnSpinner.classList.add('d-none');
+                updateButtonStates();
+            }
+        }
+        
+        // Load liquidity positions (simplified for demo)
+        async function loadLiquidityPositions() {
+            try {
+                if (accounts.length === 0) return;
+                
+                // In a real implementation, you would query the contract for LP positions
+                // For this demo, we'll just show a placeholder
+                const positionsContainer = document.getElementById('liquidityPositions');
+                positionsContainer.innerHTML = '<p class="text-muted text-center">No liquidity positions found</p>';
+            } catch (error) {
+                showError("Failed to load liquidity positions: " + error.message);
+            }
+        }
+        
+        // Show error modal
+        function showError(message) {
+            console.error(message);
+            document.getElementById('errorMessage').textContent = message;
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+        }
+        
+        // Show success modal
+        function showSuccess(message) {
+            console.log(message);
+            document.getElementById('successMessage').textContent = message;
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        }
+        
+        // Show transaction alert
+        function showTransactionAlert(message, type = "info") {
+            const alertContainer = document.querySelector('.transaction-status');
+            const alertId = 'alert-' + Date.now();
+            
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} transaction-alert alert-dismissible fade show`;
+            alert.role = 'alert';
+            alert.id = alertId;
+            alert.innerHTML = `
+                <div class="d-flex align-items-center">
+                    ${type === 'info' ? 
+                        '<div class="spinner-border spinner-border-sm me-2" role="status"></div>' : 
+                        (type === 'success' ? 
+                            '<i class="fas fa-check-circle me-2"></i>' : 
+                            '<i class="fas fa-exclamation-circle me-2"></i>')
+                    }
+                    <div>${message}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            alertContainer.appendChild(alert);
+            
+            // Auto-dismiss after 5 seconds for success/error
+            if (type !== 'info') {
+                setTimeout(() => {
+                    const bsAlert = bootstrap.Alert.getOrCreateInstance(`#${alertId}`);
+                    bsAlert.close();
+                }, 5000);
+            }
+            
+            return alert;
+        }
+        
+        // Parse revert reason from error message
+        function parseRevertReason(errorMessage) {
+            try {
+                // Try to extract revert reason from error message
+                const revertReason = errorMessage.match(/reason string: '(.+)'/);
+                if (revertReason && revertReason[1]) {
+                    return revertReason[1];
+                }
+                
+                // Try to extract revert reason from VM Exception
+                const vmException = errorMessage.match(/VM Exception while processing transaction: revert (.+)/);
+                if (vmException && vmException[1]) {
+                    return vmException[1];
+                }
+                
+                return "Transaction reverted";
+            } catch {
+                return "Transaction reverted";
+            }
+        }
+        
+        // Initialize the app when the page loads
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
