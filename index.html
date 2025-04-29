@@ -888,8 +888,11 @@
                 document.getElementById('exchangeRate').textContent = `1 ${fromToken.symbol} = ${exchangeRate} ${toToken.symbol}`;
                 
                 // Simple price impact calculation (for demo)
-                const priceImpact = ((amountIn / (parseFloat(fromWei(reserveIn, fromToken.decimals)) + parseFloat(amountOut)) / (parseFloat(fromWei(reserveOut, toToken.decimals)))) * 100;
-                document.getElementById('priceImpact').textContent = `${priceImpact.toFixed(4)}%`;
+              // Correct price impact calculation
+const reserveInAdjusted = parseFloat(fromWei(reserveIn, fromToken.decimals));
+const reserveOutAdjusted = parseFloat(fromWei(reserveOut, toToken.decimals));
+const priceImpact = ((amountIn / reserveInAdjusted) / (amountOut / reserveOutAdjusted) - 1) * 100;
+document.getElementById('priceImpact').textContent = `${Math.abs(priceImpact).toFixed(4)}%`;
                 
                 updateButtonStates();
             } catch (error) {
